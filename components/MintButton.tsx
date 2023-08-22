@@ -36,52 +36,62 @@ export default function MintButton() {
     setIsLoading(true);
 
     try {
-      // Generate keypair to use as address of token account
+      // Generate keypair to use as address of mint account
       const mintKeypair = Keypair.generate();
+
       // Calculate minimum lamports for space required by mint account
       const lamportsForMintAccount = await getMinimumBalanceForRentExemptMint(
         connection
       );
 
-      // 1) Instruction to create new account with space for new mint account
+      // 1) Instruction to invoke System Program to create new account with space for new mint account
       const createMintAccountInstruction = SystemProgram.createAccount({
-        fromPubkey: publicKey,
-        newAccountPubkey: mintKeypair.publicKey,
-        space: MINT_SIZE,
-        lamports: lamportsForMintAccount,
-        programId: TOKEN_PROGRAM_ID,
+        fromPubkey: publicKey, // payer
+        newAccountPubkey: mintKeypair.publicKey, // mint account address
+        space: MINT_SIZE, // space (in bytes) required by mint account
+        lamports: lamportsForMintAccount, // lamports to transfer to mint account
+        programId: TOKEN_PROGRAM_ID, // new program owner
       });
 
-      // 2) Instruction to initialize mint account
+      // 2) Instruction to invoke Token Program to initialize mint account
       const initializeMintInstruction = createInitializeMint2Instruction(
-        mintKeypair.publicKey,
-        0, // decimals
+        mintKeypair.publicKey, // mint address
+        0, // decimals of mint (0 for NFTs)
         publicKey, // mint authority
         null // freeze authority
       );
 
-      // Get associated token account address
+      // Derive associated token account address from mint address and token account owner
+      // This address is a PDA (Program Derived Address) and is generated deterministically
       const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
         mintKeypair.publicKey, // mint address
         publicKey // token account owner
       );
 
-      // 3) Instruction to create associated token account
+      // 3) Instruction to invoke Associated Token Program to create associated token account
+      // The Associated Token Program invokes the Token Program to create the token account with a PDA as the address of the token account
       const createTokenAccountInstruction =
         createAssociatedTokenAccountInstruction(
           publicKey, // payer
-          associatedTokenAccountAddress, // token account address
+          associatedTokenAccountAddress, // associated token account address
           publicKey, // owner
           mintKeypair.publicKey // mint address
         );
 
-      // 4) Instruction to mint token to associated token account
+      // 4) Instruction to invoke Token Program to mint 1 token to associated token account
       const mintTokenInstruction = createMintToInstruction(
         mintKeypair.publicKey, // mint address
         associatedTokenAccountAddress, // destination
         publicKey, // mint authority
         1 // amount
       );
+
+      // Metadata for the Token
+      const tokenMetadata = {
+        name: "OPOS",
+        symbol: "OPOS",
+        uri: getRandomUri(), // random URI (off-chain metadata)
+      };
 
       // Derive the Metadata account address
       const [metadataAccountAddress] = PublicKey.findProgramAddressSync(
@@ -90,38 +100,31 @@ export default function MintButton() {
           METADATA_PROGRAM_ID.toBuffer(), // metadata program address
           mintKeypair.publicKey.toBuffer(), // mint address
         ],
-        METADATA_PROGRAM_ID
+        METADATA_PROGRAM_ID // metadata program address
       );
 
-      // Metadata for the Token
-      const tokenMetadata = {
-        name: "OPOS",
-        symbol: "OPOS",
-        uri: getRandomUri(),
-      };
-
-      // 5) Instruction to create the Metadata account for the Mint Account
+      // 5) Instruction invoke Metaplex Token Metadata Program to create the Metadata account
       const createMetadataInstruction =
         createCreateMetadataAccountV3Instruction(
           {
-            metadata: metadataAccountAddress,
-            mint: mintKeypair.publicKey,
-            mintAuthority: publicKey,
-            payer: publicKey,
-            updateAuthority: publicKey,
+            metadata: metadataAccountAddress, // metadata account address
+            mint: mintKeypair.publicKey, // mint address
+            mintAuthority: publicKey, // authority to mint tokens
+            payer: publicKey, // payer
+            updateAuthority: publicKey, // authority to update metadata account
           },
           {
             createMetadataAccountArgsV3: {
               data: {
-                creators: null, // creators of the NFT
-                name: tokenMetadata.name,
-                symbol: tokenMetadata.symbol,
-                uri: tokenMetadata.uri,
-                sellerFeeBasisPoints: 0, // royalty fee for NFTs
-                collection: null,
-                uses: null,
+                creators: null, // creators of the NFT (optional)
+                name: tokenMetadata.name, // on-chain name
+                symbol: tokenMetadata.symbol, // on-chain symbol
+                uri: tokenMetadata.uri, // off-chain metadata
+                sellerFeeBasisPoints: 0, // royalty fee
+                collection: null, // collection the NFT belongs to (optional)
+                uses: null, // uses (optional)
               },
-              collectionDetails: null,
+              collectionDetails: null, // collection details (optional)
               isMutable: false, // whether the metadata can be changed
             },
           }
@@ -129,13 +132,23 @@ export default function MintButton() {
 
       // Create new transaction and add instructions
       const transaction = new Transaction().add(
+        // 1) Create mint account
         createMintAccountInstruction,
+
+        // 2) Initialize mint account
         initializeMintInstruction,
+
+        // 3) Create associated token account
         createTokenAccountInstruction,
+
+        // 4) Mint 1 token to associated token account
         mintTokenInstruction,
+
+        // 5) Create metadata account
         createMetadataInstruction
       );
 
+      // Send transaction
       const transactionSignature = await sendTransaction(
         transaction,
         connection,

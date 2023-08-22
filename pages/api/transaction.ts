@@ -57,7 +57,7 @@ export default async function handler(
 function get(res: NextApiResponse<GetResponse>) {
   res.status(200).json({
     label: "NFT Minter",
-    icon: "https://solanapay.com/src/img/branding/Solanapay.com/downloads/gradient.svg",
+    icon: "https://raw.githubusercontent.com/ZYJLiu/opos-asset/main/assets/OPOS_Social_Square.png",
   });
 }
 
@@ -142,6 +142,13 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     1 // amount
   );
 
+  // Metadata for the Token
+  const tokenMetadata = {
+    name: "OPOS",
+    symbol: "OPOS",
+    uri: getRandomUri(),
+  };
+
   // Derive the Metadata account address
   const [metadataAccountAddress] = PublicKey.findProgramAddressSync(
     [
@@ -151,13 +158,6 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     ],
     METADATA_PROGRAM_ID
   );
-
-  // Metadata for the Token
-  const tokenMetadata = {
-    name: "OPOS",
-    symbol: "OPOS",
-    uri: getRandomUri(),
-  };
 
   // 5) Instruction to create the Metadata account for the Mint Account
   const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
@@ -193,6 +193,7 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     isWritable: false,
   });
 
+  // Get latest blockhash
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash();
 
@@ -209,6 +210,7 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     createMetadataInstruction
   );
 
+  // Sign the transaction with the mint keypair
   transaction.sign(mintKeypair);
 
   return transaction

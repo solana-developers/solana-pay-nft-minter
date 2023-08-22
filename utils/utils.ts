@@ -1,4 +1,5 @@
-export const uris = [
+// Off-chain metadata
+const uris = [
   "https://raw.githubusercontent.com/ZYJLiu/opos-asset/main/assets/Climate/metadata.json",
   "https://raw.githubusercontent.com/ZYJLiu/opos-asset/main/assets/ClosedCube/metadata.json",
   "https://raw.githubusercontent.com/ZYJLiu/opos-asset/main/assets/CompressedCoil/metadata.json",
@@ -13,6 +14,7 @@ export const uris = [
   "https://raw.githubusercontent.com/ZYJLiu/opos-asset/main/assets/Security/metadata.json",
 ];
 
+// Select a random URI from the list
 export function getRandomUri() {
   const randomIndex = Math.floor(Math.random() * uris.length);
   return uris[randomIndex];
