@@ -21,6 +21,7 @@ import {
   PROGRAM_ID as METADATA_PROGRAM_ID,
   createCreateMetadataAccountV3Instruction,
 } from "@metaplex-foundation/mpl-token-metadata";
+import { getRandomUri } from "@/utils/utils";
 
 type GetResponse = {
   label: string;
@@ -153,9 +154,9 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
 
   // Metadata for the Token
   const tokenMetadata = {
-    name: "Solana Gold",
-    symbol: "GOLDSOL",
-    uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",
+    name: "OPOS",
+    symbol: "OPOS",
+    uri: getRandomUri(),
   };
 
   // 5) Instruction to create the Metadata account for the Mint Account
@@ -184,7 +185,7 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     }
   );
 
-  // Add the reference address to an instruction
+  // Add the reference  to an instruction
   // Used in client to find the transaction once sent
   createMintAccountInstruction.keys.push({
     pubkey: reference,
@@ -192,13 +193,14 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     isWritable: false,
   });
 
-  const latestBlockhash = await connection.getLatestBlockhash();
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash();
 
   // create new Transaction and add instruction
   const transaction = new Transaction({
     feePayer: account,
-    blockhash: latestBlockhash.blockhash,
-    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+    blockhash: blockhash,
+    lastValidBlockHeight: lastValidBlockHeight,
   }).add(
     createMintAccountInstruction,
     initializeMintInstruction,

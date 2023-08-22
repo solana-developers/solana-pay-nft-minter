@@ -47,9 +47,10 @@ export default function MintQR() {
         // Check if there is any transaction for the reference
         const signatureInfo = await findReference(connection, reference, {
           until: mostRecentNotifiedTransaction.current,
+          finality: "confirmed",
         });
-        displayToast(signatureInfo.signature);
         mostRecentNotifiedTransaction.current = signatureInfo.signature;
+        displayToast(signatureInfo.signature);
         console.log("Transaction confirmed", signatureInfo);
       } catch (e) {
         if (e instanceof FindReferenceError) {
@@ -58,7 +59,7 @@ export default function MintQR() {
         }
         console.error("Unknown error", e);
       }
-    }, 500);
+    }, 1000);
     return () => {
       clearInterval(interval);
     };

@@ -21,6 +21,7 @@ import {
   createCreateMetadataAccountV3Instruction,
 } from "@metaplex-foundation/mpl-token-metadata";
 import useToastHook from "@/hooks/useToastHook";
+import { getRandomUri } from "@/utils/utils";
 
 export default function MintButton() {
   const { publicKey, sendTransaction } = useWallet();
@@ -56,7 +57,7 @@ export default function MintButton() {
         mintKeypair.publicKey,
         0, // decimals
         publicKey, // mint authority
-        publicKey // freeze authority
+        null // freeze authority
       );
 
       // Get associated token account address
@@ -94,9 +95,9 @@ export default function MintButton() {
 
       // Metadata for the Token
       const tokenMetadata = {
-        name: "Solana Gold",
-        symbol: "GOLDSOL",
-        uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",
+        name: "OPOS",
+        symbol: "OPOS",
+        uri: getRandomUri(),
       };
 
       // 5) Instruction to create the Metadata account for the Mint Account
