@@ -15,6 +15,7 @@ import {
   createMintToInstruction,
   getAssociatedTokenAddressSync,
   getMinimumBalanceForRentExemptMint,
+  createSetAuthorityInstruction,
 } from "@solana/spl-token";
 import {
   PROGRAM_ID as METADATA_PROGRAM_ID,
@@ -130,6 +131,14 @@ export default function MintButton() {
           }
         );
 
+      // 6) Instruction to invoke Token Program to set mint authority to null
+      const setAuthorityInstruction = createSetAuthorityInstruction(
+        mintKeypair.publicKey, // mint address
+        publicKey, // current authority (mint authority)
+        0, // authority type (mint authority)
+        null // new authority
+      );
+
       // Create new transaction and add instructions
       const transaction = new Transaction().add(
         // 1) Create mint account
@@ -145,7 +154,10 @@ export default function MintButton() {
         mintTokenInstruction,
 
         // 5) Create metadata account
-        createMetadataInstruction
+        createMetadataInstruction,
+
+        // 6) Set mint authority to null
+        setAuthorityInstruction
       );
 
       // Send transaction

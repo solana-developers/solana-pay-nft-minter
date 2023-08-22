@@ -21,20 +21,20 @@ export default function MintQR() {
   const displayToast = useToastHook();
 
   useEffect(() => {
+    // Create API URL
     const { location } = window;
     const apiUrl = `${location.protocol}//${
       location.host
-    }/api/transaction?reference=${reference.toBase58()}`;
+    }/api/mintNft?reference=${reference.toBase58()}`;
 
+    // Create Solana Pay URL
     const urlParams: TransactionRequestURLFields = {
       link: new URL(apiUrl),
     };
-
-    console.log("urlParams:", urlParams);
-
     const solanaUrl = encodeURL(urlParams);
+
+    // Create QR code encoded with Solana Pay URL
     const qr = createQR(solanaUrl, 512, "transparent");
-    qr.update({ backgroundOptions: { round: 1000 } });
     if (qrRef.current) {
       qrRef.current.innerHTML = "";
       qr.append(qrRef.current);
@@ -44,14 +44,13 @@ export default function MintQR() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        // Check if there is any transaction for the reference
+        // Check for transactions that include the reference address
         const signatureInfo = await findReference(connection, reference, {
           until: mostRecentNotifiedTransaction.current,
           finality: "confirmed",
         });
         mostRecentNotifiedTransaction.current = signatureInfo.signature;
         displayToast(signatureInfo.signature);
-        console.log("Transaction confirmed", signatureInfo);
       } catch (e) {
         if (e instanceof FindReferenceError) {
           // No transaction found yet, ignore this error

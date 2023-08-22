@@ -14,6 +14,7 @@ import {
   createAssociatedTokenAccountInstruction,
   createInitializeMint2Instruction,
   createMintToInstruction,
+  createSetAuthorityInstruction,
   getAssociatedTokenAddressSync,
   getMinimumBalanceForRentExemptMint,
 } from "@solana/spl-token";
@@ -185,8 +186,16 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     }
   );
 
+  // 6) Instruction to invoke Token Program to set mint authority to null
+  const setAuthorityInstruction = createSetAuthorityInstruction(
+    mintKeypair.publicKey, // mint address
+    account, // current authority (mint authority)
+    0, // authority type (mint authority)
+    null // new authority
+  );
+
   // Add the reference  to an instruction
-  // Used in client to find the transaction once sent
+  // Used by frontend to find the transaction once sent
   createMintAccountInstruction.keys.push({
     pubkey: reference,
     isSigner: false,
@@ -207,7 +216,8 @@ async function buildTransaction(account: PublicKey, reference: PublicKey) {
     initializeMintInstruction,
     createTokenAccountInstruction,
     mintTokenInstruction,
-    createMetadataInstruction
+    createMetadataInstruction,
+    setAuthorityInstruction
   );
 
   // Sign the transaction with the mint keypair
