@@ -87,13 +87,6 @@ export default function MintButton() {
         1 // amount
       );
 
-      // Metadata for the Token
-      const tokenMetadata = {
-        name: "OPOS",
-        symbol: "OPOS",
-        uri: getRandomUri(), // random URI (off-chain metadata)
-      };
-
       // Derive the Metadata account address
       const [metadataAccountAddress] = PublicKey.findProgramAddressSync(
         [
@@ -118,9 +111,9 @@ export default function MintButton() {
             createMetadataAccountArgsV3: {
               data: {
                 creators: null, // creators of the NFT (optional)
-                name: tokenMetadata.name, // on-chain name
-                symbol: tokenMetadata.symbol, // on-chain symbol
-                uri: tokenMetadata.uri, // off-chain metadata
+                name: "OPOS", // on-chain name
+                symbol: "OPOS", // on-chain symbol
+                uri: getRandomUri(), // off-chain metadata
                 sellerFeeBasisPoints: 0, // royalty fee
                 collection: null, // collection the NFT belongs to (optional)
                 uses: null, // uses (optional)
@@ -169,6 +162,7 @@ export default function MintButton() {
         }
       );
 
+      // Toast notification
       displayToast(transactionSignature);
     } catch (error) {
       console.log(error);

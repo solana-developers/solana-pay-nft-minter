@@ -44,12 +44,14 @@ export default function MintQR() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        // Check for transactions that include the reference address
+        // Find transactions on the network that include the reference address
         const signatureInfo = await findReference(connection, reference, {
           until: mostRecentNotifiedTransaction.current,
           finality: "confirmed",
         });
         mostRecentNotifiedTransaction.current = signatureInfo.signature;
+
+        // Toast notification
         displayToast(signatureInfo.signature);
       } catch (e) {
         if (e instanceof FindReferenceError) {
