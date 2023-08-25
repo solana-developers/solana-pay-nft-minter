@@ -6,7 +6,7 @@ This repo is intended to provide a minimal example of how to use [Solana Pay](ht
 - **Solana Pay QR Code**: The implementation for generating a Solana Pay QR code is located in [`./components/MintQR.tsx`](./components/MintQR.tsx).
 - **Solana Wallet-Adapter Example**: For comparison, an example of minting NFTs using the Solana wallet-adapter is available in [`./components/MintButton.tsx`](./components/MintButton.tsx).
 
-Here is the [Devnet Demo](https://solana-pay-nft-minter.vercel.app/). To mint, ensure that your Devnet wallet is funded with Devnet SOL.
+Here is the [Devnet Demo](https://solana-pay-nft-minter.vercel.app/). To mint, ensure that your Devnet wallet is funded with Devnet SOL. You can airdrop Devnet SOL using this [faucet](https://solana-devnet-faucet-seven.vercel.app/).
 
 ![SolanaPayNFTMinter](https://github.com/ZYJLiu/solana-pay-nft-minter/assets/75003086/6a85c9ad-922a-496a-8d49-a74e80b09959)
 
