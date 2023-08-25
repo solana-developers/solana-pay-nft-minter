@@ -1,4 +1,3 @@
-
 # Solana Pay NFT Minter
 
 This repo is intended to provide a minimal example of how to use [Solana Pay](https://docs.solanapay.com/) transaction requests to mint NFTs on Solana.
@@ -10,7 +9,6 @@ This repo is intended to provide a minimal example of how to use [Solana Pay](ht
 Here is the [Devnet Demo](https://solana-pay-nft-minter.vercel.app/). To mint, ensure that your Devnet wallet is funded with Devnet SOL.
 
 ![SolanaPayNFTMinter](https://github.com/ZYJLiu/solana-pay-nft-minter/assets/75003086/6a85c9ad-922a-496a-8d49-a74e80b09959)
-
 
 ## Getting Started
 
@@ -50,4 +48,4 @@ When we create a transaction request QR code we don't know what transaction is g
 
 We can use the `findReference` function to find a transaction on-chain with the given reference. This allows us to display the QR code on one device, scan it and sign/send the transaction in a wallet on a different device/network, and detect it on the device displaying the QR code (or anywhere else) immediately, without knowing anything about the transaction beforehand - except that it will include the `reference`.
 
-An example listens for transactions with a given reference can be found in [`./components/MintQR.tsx`](./components/MintQR.)
+An example of listens for transactions with a given reference can be found in [`./components/MintQR.tsx`](./components/MintQR.)
