@@ -1,3 +1,4 @@
+
 # Solana Pay NFT Minter
 
 This repo is intended to provide a minimal example of how to use [Solana Pay](https://docs.solanapay.com/) transaction requests to mint NFTs on Solana.
@@ -7,6 +8,9 @@ This repo is intended to provide a minimal example of how to use [Solana Pay](ht
 - **Solana Wallet-Adapter Example**: For comparison, an example of minting NFTs using the Solana wallet-adapter is available in [`./components/MintButton.tsx`](./components/MintButton.tsx).
 
 Here is the [Devnet Demo](https://solana-pay-nft-minter.vercel.app/). To mint, ensure that your Devnet wallet is funded with Devnet SOL.
+
+![SolanaPayNFTMinter](https://github.com/ZYJLiu/solana-pay-nft-minter/assets/75003086/6a85c9ad-922a-496a-8d49-a74e80b09959)
+
 
 ## Getting Started
 
