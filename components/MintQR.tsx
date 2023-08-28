@@ -13,15 +13,24 @@ import useToastHook from "@/hooks/useToastHook";
 
 export default function MintQR() {
   const { connection } = useConnection();
+
+  // Initialize a ref used for the QR code
   const qrRef = useRef<HTMLDivElement>(null);
 
+  // Generate a random reference address that is added to the Solana Pay transaction
+  // This allows us to find the transaction on the network once it's been sent by the mobile wallet
   const reference = useMemo(() => Keypair.generate().publicKey, []);
+
+  // Keep track of the most recent transaction that was notified, so we can reuse the reference address
+  // Alternatively, you can generate a new reference address for each transaction
   const mostRecentNotifiedTransaction = useRef<string | undefined>(undefined);
 
+  // Toast notification hook
   const displayToast = useToastHook();
 
   useEffect(() => {
-    // Create API URL
+    // The API URL, which will be used to create the Solana Pay URL
+    // Append the reference address to the URL as a query parameter
     const { location } = window;
     const apiUrl = `${location.protocol}//${
       location.host
@@ -34,7 +43,13 @@ export default function MintQR() {
     const solanaUrl = encodeURL(urlParams);
 
     // Create QR code encoded with Solana Pay URL
-    const qr = createQR(solanaUrl, 512, "transparent");
+    const qr = createQR(
+      solanaUrl, // The Solana Pay URL
+      512, // The size of the QR code
+      "transparent" // The background color of the QR code
+    );
+
+    // Update the ref with the QR code
     if (qrRef.current) {
       qrRef.current.innerHTML = "";
       qr.append(qrRef.current);
@@ -42,13 +57,16 @@ export default function MintQR() {
   }, [reference]);
 
   useEffect(() => {
+    // Poll the network for transactions that include the reference address
     const interval = setInterval(async () => {
       try {
-        // Find transactions on the network that include the reference address
+        // Find transactions that include the reference address
         const signatureInfo = await findReference(connection, reference, {
-          until: mostRecentNotifiedTransaction.current,
+          until: mostRecentNotifiedTransaction.current, // Only look for transactions after the most recent one we've found
           finality: "confirmed",
         });
+
+        // Update the most recent transaction with the transaction we just found
         mostRecentNotifiedTransaction.current = signatureInfo.signature;
 
         // Toast notification
@@ -60,7 +78,7 @@ export default function MintQR() {
         }
         console.error("Unknown error", e);
       }
-    }, 1000);
+    }, 1000); // Check for new transactions every second
     return () => {
       clearInterval(interval);
     };
